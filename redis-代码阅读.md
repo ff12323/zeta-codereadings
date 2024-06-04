@@ -1,5 +1,7 @@
 阅读代码：
  - 为什么需要代码阅读记录？1、因为人与代码仓库、代码作者之间的认知经验差异，导致无法理解代码、注释等。2、代码本身的注释的问题（缺少、错误、不够详尽）3、扩展补充、测试记录、实践发现等内容
+   - 现象01：有时候自身基础不足，对于代码的注释越看越无法理解，这是代码语言与自然语言不合的体现。
+
 
 
 # 一、commands.c
@@ -39,7 +41,7 @@ raxNode：
 
 rax：rax树结构体
  - *head：指向起始的rax节点。
- - numele：？？？
+ - numele： number element（元素个数？）
  - numnodes： 记录节点的个数
  - metadata：【柔性数组，？？？】
 
@@ -248,7 +250,7 @@ raxLowWalk
 
 ```
 raxLowWalk:
-  Ds: 遍历一个radix树
+  Ds: 遍历一个radix树，
    type: [low level function] 低层级函数
   Para:
    rax：。。。
@@ -266,14 +268,43 @@ raxLowWalk:
 
 raxGenericInsert
 
+- 调用 raxLowWalk，对插入的元素的进行匹配。
+- 如果：匹配的长度等于插入的长度 且 不在一个压缩节点的中间位置。
+  - 如果终止节点不包含key  或 （关联值为NULL 且 覆盖）：
+    - 【？？？】说明不存在关联值的指针空间，对节点realloc，并设置数据指针。
+      - OOM，返0
+    - 根据walk遍历返回的父节点data存放位置，更新为新的节点指针。
+  - 如果本节点存在key，更新之：
+    - 存放旧的
+    - 如果覆盖，设置新的。
+    - 返 0
+  - 将节点设置为存在key，设置数据指针。
+  - radix树元素个数 ++
+  - 返1
+- （注释：如果节点终止在一个压缩节点上，我们继续进行下去前，需要将这个节点**分裂**）
+-  ALGORITHM 1
+  - 。。。
+
 
 ```
 raxGenericInsert
-  Ds:
+  Ds: 通用的插入方法
   Para:
+   rax：
+     【out】：更新统计数据
+   s： 插入的元素（字符串）
+   len：插入字符串的长度
+   data： 新的数据指针。
+   old：【out，nullable】二维指针，用于存放旧的数据指针。
+   overwrite： 如果元素已经存在，参数值为1，则关联的数据被给定参数更新
   Ret:
-   0:
+   0: 存在且覆盖返0；
     errno：【global】，如果出现oom，设置为 ENOMEM
-   1：
+   1：元素插入（Element inserted.）
 
 ```
+
+
+
+
+
