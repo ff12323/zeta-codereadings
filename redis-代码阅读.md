@@ -282,7 +282,11 @@ raxGenericInsert
   - radix树元素个数 ++
   - 返1
 - （注释：如果节点终止在一个压缩节点上，我们继续进行下去前，需要将这个节点**分裂**）
--  ALGORITHM 1
+  - （，分裂一个压缩节点有着一些可能的情况。）Splitting a compressed node have a few possible cases.
+  - 例子：假设h是一个压缩节点，包含字符串 "ANNIBALE"。这个节点指向另一个压缩节点。
+    - `"ANNIBALE" -> "SCO" -> []`
+
+- ALGORITHM 1
   - 。。。
 
 
