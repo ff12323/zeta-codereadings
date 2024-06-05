@@ -285,6 +285,50 @@ raxGenericInsert
   - （，分裂一个压缩节点有着一些可能的情况。）Splitting a compressed node have a few possible cases.
   - 例子：假设h是一个压缩节点，包含字符串 "ANNIBALE"。这个节点指向另一个压缩节点。
     - `"ANNIBALE" -> "SCO" -> []`
+    - 1、插入 "ANNIENTARE"
+    - 2、插入 "ANNIBALI"
+    - 3、插入 "AGO"（原节点被设置为
+    - 4、插入 "CIAO"
+    - 5、插入 "ANNI"
+
+1、压缩节点被分裂为2个压缩节点 + 1个非压缩
+
+```
+               |B| -> "ALE" -> "SCO" -> []
+     "ANNI" -> |-|
+               |E| -> (... continue algo ...) "NTARE" -> []
+
+```
+
+2、压缩节点被分裂为1个压缩节点 + 1个非压缩
+
+```
+                  |E| -> "SCO" -> []
+     "ANNIBAL" -> |-|
+                  |I| -> (... continue algo ...) []
+```
+
+3、压缩节点被分裂为2个非压缩节点 + 1个压缩
+
+```
+            |N| -> "NIBALE" -> "SCO" -> []
+     |A| -> |-|
+            |G| -> (... continue algo ...) |O| -> []
+```
+
+4、压缩节点被分裂为1个非压缩节点 + 1个压缩
+
+```
+     |A| -> "NNIBALE" -> "SCO" -> []
+     |-|
+     |C| -> (... continue algo ...) "IAO" -> []
+```
+
+5、压缩节点被分类为2个压缩节点
+
+```
+     "ANNI" -> "BALE" -> "SCO" -> []
+```
 
 - ALGORITHM 1
   - 。。。
