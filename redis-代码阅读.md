@@ -330,8 +330,19 @@ raxGenericInsert
      "ANNI" -> "BALE" -> "SCO" -> []
 ```
 
-- ALGORITHM 1
-  - 。。。
+- ALGORITHM 1（讲解）
+  - （，例子1到4，所有例子下由于字符不匹配而停止于一个压缩节点的中间）For the above cases 1 to 4, that is, all cases where we stopped in the middle of a compressed node for a character mismatch, do:
+  - Let `$SPLITPOS` be the zero-based index at which, in the compressed node array of characters, we found the mismatching character. For example if the node contains "ANNIBALE" and we add"ANNIENTARE" the `$SPLITPOS` is 4, that is, the index at which the mismatching character is found.
+  - 1、（，保存当前压缩节点的子节点指针；）Save the current compressed node `$NEXT` pointer (the pointer to the child element, that is always present in compressed nodes).  
+  - 2、（，创建“分裂节点” ？？？ 。。。） Create "split node" having as child the non common letter at the compressed node. The other non common letter (at the key) will be added later as we continue the normal insertion algorithm at step "6".  
+  - 3a. IF `$SPLITPOS` == 0:  （，说明压缩节点的第一个字符就不匹配）
+    - （，使用分裂节点替换旧的节点；。。。）Replace the old node with the split node, by copying the auxiliary data if any. Fix parent's reference. Free old node eventually (we still need its data for the next steps of the algorithm).  
+  - 3b. IF `$SPLITPOS` != 0: 
+    - （，裁剪压缩节点（重分配之）而使其包含spos个字符；并改变其子节点指针而链到分裂节点上；如果新的压缩节点长度为1，设置其属性为非压缩；。。。）Trim the compressed node (reallocating it as well) in order to contain `$splitpos` characters. Change child pointer in order to link to the split node. If new compressed node len is just 1, set iscompr to 0 (layout is the same). Fix parent's reference.
+  - 4a. （，如果后缀长度不为0（，就是压缩节点其**分裂字符**之后的剩余字符），则创建一个“后缀节点”。。。其子节点指针指向next指针；）IF the postfix len (the length of the remaining string of the original compressed node after the **split character**) is non zero, create a "postfix node". If the postfix node has just one character set iscompr to 0, otherwise iscompr to 1. Set the postfix node child pointer to `$NEXT`.  
+  - 4b. （，如果后缀长度为0，使用next指针作为后缀指针）IF the postfix len is zero, just use `$NEXT`as postfix pointer.  
+  - 5、（，分裂节点的第一个子节点是后缀节点）Set child[0] of split node to postfix node.  
+  - 6、（，将分裂节点设置为当前节点，设置当前下标为第二个字节点，并继续插入算法；）Set the split node as the current node, set current index at child[1] and continue insertion algorithm as usually.
 
 
 ```
