@@ -259,6 +259,7 @@ raxLowWalk:
    stopnode：【out、nullable】匹配终止的radix节点
    plink：三维指针【out、nullable】对于终止节点其父节点的指针区执行其的二维指针地址
    splitpos：【out、nullable】如果终止节点是一个压缩节点，且字符匹配在其上面不是节点完全匹配，而是其中一部分，需要记录这一部分的下标；（例子：0，表示无需压缩节点的字符，其它则需要一部分，最大值是字符节的长度）
+      用途：在插入时，对于终止节点可能出现分裂的情况，需要替换为新的节点。而需要修正父节点对于子节点的引用，将这里设置为新的子节点。
    ts：【out、nullable】radix栈，记录匹配字符串经过的radix栈
   Ret:
 
@@ -330,7 +331,7 @@ raxGenericInsert
      "ANNI" -> "BALE" -> "SCO" -> []
 ```
 
-- ALGORITHM 1（讲解）
+- 注释：ALGORITHM 1
   - （，例子1到4，所有例子下由于字符不匹配而停止于一个压缩节点的中间）For the above cases 1 to 4, that is, all cases where we stopped in the middle of a compressed node for a character mismatch, do:
   - Let `$SPLITPOS` be the zero-based index at which, in the compressed node array of characters, we found the mismatching character. For example if the node contains "ANNIBALE" and we add"ANNIENTARE" the `$SPLITPOS` is 4, that is, the index at which the mismatching character is found.
   - 1、（，保存当前压缩节点的子节点指针；）Save the current compressed node `$NEXT` pointer (the pointer to the child element, that is always present in compressed nodes).  
@@ -343,6 +344,27 @@ raxGenericInsert
   - 4b. （，如果后缀长度为0，使用next指针作为后缀指针）IF the postfix len is zero, just use `$NEXT`as postfix pointer.  
   - 5、（，分裂节点的第一个子节点是后缀节点）Set child[0] of split node to postfix node.  
   - 6、（，将分裂节点设置为当前节点，设置当前下标为第二个字节点，并继续插入算法；）Set the split node as the current node, set current index at child[1] and continue insertion algorithm as usually.
+- 注释：ALGORITHM 2
+  - For case 5, that is, if we stopped in the middle of a compressed node but no mismatch was found, do: 
+  -  Let `$SPLITPOS` be the zero-based index at which, in the compressed node array of characters, we stopped iterating because there were no more keys character to match. So in the example of the node "ANNIBALE", adding the string "ANNI", the `$SPLITPOS` is 4.  
+  - 1、Save the current compressed node `$NEXT `pointer (the pointer to the child element, that is always present in compressed nodes).  
+  - 2、Create a "postfix node" containing all the characters from `$SPLITPOS` to the end. Use `$NEXT` as the postfix node child pointer. If the postfix node length is 1, set iscompr to 0. Set the node as a key with the associated value of the new inserted key.  
+  - 3、Trim the current node to contain the first `$SPLITPOS` characters. As usually if the new node length is just 1, set iscompr to 0. Take the iskey / associated value as it was in the original node. Fix the parent's reference.  
+  - 4、Set the postfix node as the only child pointer of the trimmed node created at step 1.
+- IF 终止节点是压缩的，并且匹配的长度不为插入元素长度：
+  - 。。。
+  - 步骤完成，释放终止节点的内存。分裂节点成为终止节点。
+- ELIF 终止节点是压缩的，并且匹配的长度等于插入元素长度：
+  - 。。。
+- （，目前位置走到最远处，但是任然有剩余的字符。我们需要插入缺失的节点）We walked the radix tree as far as we could, but still there are left chars in our string. We need to insert the missing nodes.
+  - 。。。
+- 插入结束，终止节点进行realloc，为了能存放 （参数：新的数据指针）
+- 如果不包含key，radix数的元素的统计数据++ （？？？ 什么意思）
+  - 自答：就是原有节点，如果不包含key，这次插入了key，所以统计更新。
+- 修复parent数据指针为当前。
+- 返 1（表示元素插入）
+- OOM：
+  - 。。。
 
 
 ```
@@ -362,6 +384,13 @@ raxGenericInsert
    1：元素插入（Element inserted.）
 
 ```
+
+#### 4.1 接口-包装器
+
+- raxInsert：同上，覆盖参数为1，插入强制更新
+- raxTryInsert：同上，覆盖参数为0，不更新
+
+### 5、查找类
 
 
 
