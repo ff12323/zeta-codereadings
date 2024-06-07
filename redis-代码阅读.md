@@ -394,5 +394,32 @@ raxGenericInsert
 
 
 
+### 6、删除
+
+
+
+```
+raxRemoveChild：
+  Ds：
+    type: [low level function] 低层级函数
+  Ret: raidx节点指针
+    1、新的父节点（如果子节点删除了）
+    2、原节点（未删除）
+```
+
+### 7、内存释放
+
+
+
+### 8、迭代器（Iterator）
+
+
+
+
+
+### 9、自检（Introspection）
+
+
+
 
 
