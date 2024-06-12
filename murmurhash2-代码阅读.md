@@ -8,7 +8,7 @@
 
 ### 1、abrandoned / murmur2
 
-
+- https://github.com/abrandoned/murmur2
 
 MurmurHash2
 
