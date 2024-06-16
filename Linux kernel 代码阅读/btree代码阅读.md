@@ -32,7 +32,7 @@ Compared to radix trees, B+Trees are more efficient when dealing with a **sparse
 
 This particular implementation stores pointers identified by a long value. Storing NULL pointers is illegal, lookup will return NULL when no entry was found.
 
-A tricks was used that is not commonly found in textbooks.  The lowest values are to the right, not to the left.  All used slots within a node are on the left, all unused slots contain NUL values.  Most operations simply loop once over all slots and terminate on the first NUL.
+（，。。特点：1、最小值在右边，而不是在左边  2、节点上所有已使用的槽位在左边，未使用的值为NULL；）A tricks was used that is not commonly found in textbooks.  The lowest values are to the right, not to the left.  All used slots within a node are on the left, all unused slots contain NUL values.  Most operations simply loop once over all slots and terminate on the first NUL.
 
 
 
@@ -46,9 +46,9 @@ btree_head：b树头部
 
 
 
-btree_geo：btree geometry
+btree_geo：（树的几何大小）btree geometry
 
-- keylen：key的长度（支持32、64、128）
+- keylen：单个key的以（unsigned long）为单位的长度（支持32、64、128）
 - no_pairs：key-val对的个数（key的个数）
 - no_longs：（unsigned  long）key的个数
 
@@ -74,7 +74,7 @@ BUG_ON：
 #### btree_lookup 
 
 - 如果树的高度为0，返NULL
-- 
+- 。。。
 
 ```
 btree_lookup：
@@ -112,6 +112,11 @@ btree_insert
 
 btree_insert_level
 
+- 如果b树高度 小于 @level：
+  - （func：b树高度增加，头结点移到下一层）
+- flag：retry
+- 
+
 ```
   Ds：
   Para：
@@ -121,6 +126,110 @@ btree_insert_level
     【upper】：同上
 ```
 
+btree_grow
+
+- 从内存池分配新节点
+- 如何头结点不为NULL：
+  - 获取头结点最后一个key的下标
+  - 将最后一个key，设置到（新节点）的第1对的key
+  - 设置到（新节点）的第1对的val，为头节点指针。
+- 修改@b树头部为（新节点），高度++
+- 返回 0
+
+```
+btree_grow：
+  Ds：b树高度增加，头结点移到下一层
+  Ret：
+     -ENOMEM：失败
+     0：成功
+```
+
+getfill：返回@b树节点的 @start为起始下标，@b树几何的key-val数量为终止，的第一个为NULL的下标（全满则是越界的下标，不存在的后一个）
+
+find_level
+
+```
+find_level：
+  Ds：locate the correct leaf node in the btree
+  Para：
+    head：
+    geo：
+    key：
+    level：
+  Ret：返回key所在的叶子节点
+```
+
+
+
+#### btree_last：
+
+- 当前节点 为 起始节点
+- 如果树的高度为0，返NULL
+- 遍历b树的（中间节点的）高度：
+  - 获取当前节点的第1项val（最大值），成为（当前节点）
+- （当前节点）此时是叶子节点，获取其第1项的key，copy 到 @key
+- 返回 第1项的val
+
+```
+btree_last：
+	Ds： （获取b树中的最后一项的val）get last entry in btree
+	Para：
+        @head: btree head
+        @geo: btree geometry
+        @key: 【out】last key
+    Ret：
+        1、the last entry in the btree, and sets @key to the key of that entry; 
+        2、NULL if the tree is empty, in that case key is not changed.
+```
+
 
 
 ### 4、内部工具函数
+
+bkey：返会b树节点中第（n）个key的指针
+
+- @node：b树节点
+- @n：key的下标
+- 从b树的几何中获取key的单位长度， 单位长度 x 下标 = n-th节点的起始下标，数组取值并返回。
+
+bval：返回b树节点中第（n）个val，val是（void *）指针
+
+- @node：b树节点
+- @n：val的下标
+- 从b树的几何中获取key的（unsigned long）的个数为起始点，加上n的下标，访问节点数组。（unsigned long） ==> （void *）
+
+setkey：设置b树节点中第（n）个key的值
+
+- 。。。
+
+setval：设置b树节点中第（n）个val的值
+
+- 。。。
+
+clearpair：设置b树节点中第（n）个key-val 对的值为0
+
+- 。。。
+
+
+
+
+
+#### 4.2 longxxx类工具
+
+longcmp
+
+```
+longcmp：
+  Ds：从0开始往后进行整数比较，比较第一个不同的大小情况
+  Para：
+    l1；（unsigned long）数组
+    l2：同上
+    n：数组长度（约束：二者等长）
+  Ret：
+    -1：第一个不同的，l1更小
+    1：第一个不同的，l1更大
+    0：无不同，二者相同
+```
+
+
+
