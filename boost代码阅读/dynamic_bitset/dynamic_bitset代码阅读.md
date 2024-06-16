@@ -1,0 +1,1 @@
+DynamicBitset, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), is similar to std::bitset however the size is specified at run-time instead of at compile-time.
