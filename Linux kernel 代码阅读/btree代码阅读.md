@@ -1,5 +1,15 @@
 
 
+英语生词：
+
+```
+right before： immediately before
+```
+
+
+
+
+
 DOC: B+Tree basics
 
 A B+Tree is a data structure for looking up arbitrary (currently allowing unsigned long, u32, u64 and 2 * u64) keys into pointers. The data structure is described at https://en.wikipedia.org/wiki/B-tree, we currently do not use binary search to find the key on lookups.
@@ -57,7 +67,7 @@ btree_geo：（树的几何大小）btree geometry
 BUG_ON：
 
 - 如果不开启调试特性，直接跳过。
-- 否则，cond为假，则assert失败。
+- 否则，cond为**真**，则assert失败。
 
 ```c
 #ifdef NDEBUG
@@ -115,10 +125,26 @@ btree_insert_level
 - 如果b树高度 小于 @level：
   - （func：b树高度增加，头结点移到下一层）
 - flag：retry
-- 
+- 获取（func：返回@key所在的叶子节点）
+- 获取（func：返回@key在节点的区间下标。）
+- 获取（func：返回@节点的实际key-val数量）
+- 【调用约束】（2个相同的key不能出现） two identical keys are not allowed
+  - BUG调试：（区间下标）**不是右边界**，且 @key 等于 @节点的区间下标。
+- 如果：实际kv数量  == 节点最大kv数量
+  - 说明，叶子节点满了，需要先**分裂**再插入。（need to split node）
+  - 【🤢🤢🤢】
+  - 如果：key-val实际数量 是 奇数：
+    - 将 旧的（叶子节点）的最后一个key-val进行移位。
+  - 【goto】flag：retry（目的：节点完成分裂，需要重新查找插入的叶子节点，再插入。）
+- BUG调试：（走到这里）叶子节点个数 不能 大于等于 **节点最大kv数量**
+- （移动key-val，得到空闲位置，插入@key）shift and insert
+  - 将 叶子节点的[最右边 ->  区间下标] key-val，向后移动一位。
+  - 将@key-@val，插入到 区间下标的位置中。
+
+
 
 ```
-  Ds：
+  Ds：【递归函数】
   Para：
     【upper】：同上，5个参数，上层API传入。
     level：插入的key，在树中的高度。
@@ -146,7 +172,27 @@ btree_grow：
 
 getfill：返回@b树节点的 @start为起始下标，@b树几何的key-val数量为终止，的第一个为NULL的下标（全满则是越界的下标，不存在的后一个）
 
-find_level
+getpos：返回@key在节点的区间下标。
+
+- 遍历@节点的kv对数量，如果节点的key  小于等于  @key  则返回当前下标。
+- Note：边界情况，如下。
+
+find_level：
+
+- （当前节点）为树的头部节点
+- 遍历b树高度 到 @level：
+  - （从大到小）遍历节点所有的key-val对：
+    - 如果（当前key） 小于等于 @key， 则@key位于[前一个key, 当前key] 二者之间，break；
+      - Note：边界情况，下标为0，则@key比节点的最大key要大；**下标为（kv对个数） 或者  下标超过 （kv对实际个数），则@key比节点的最小key要小**。
+  - 如果：@key比节点的最小key要小
+    - （，最右边的key太大了，更新）right-most key is too large, update it； FIXME: If the right-most key on higher levels is always zero, this wouldn't be necessary.
+    - 【？？？】为什么
+    - 将节点的最右边的key，设置为 @key
+      - BUG调试： 下标 i 不能小于0；==》这表示在节点只有一个key情况下，@key不能更小【？？？】
+  - （当前节点）更新为@key右边的节点的val（子节点）
+- BUG调试：（当前节点）不为NULL
+  - 【？？？】
+- 返回 （当前节点）
 
 ```
 find_level：
@@ -155,8 +201,122 @@ find_level：
     head：
     geo：
     key：
-    level：
+    level： 为1时，是叶子节点。 为2时是上一层节点，以此类推
   Ret：返回key所在的叶子节点
+  
+
+4 -> @level: 2
+        +---+  4 -> @level: 1
++--+--+ | 4 | +--+--+
+   |    +-+-+    |
+   |      |      |
+   |      v      |
+   v    +-+-+    |
++-----+ | 3 |    |
+   |    +-+-+    |
+   |      |      |
+   |      |      |
+   v    +-v-+    v
+        | 2 | +-----+
+        +-+-+    |
+          |      |
+          |      |
+        +-v-+    v
+        | 1 |   leaf
+        +---+
+
+
+```
+
+
+
+![img](.\.img\btree.drawio.svg)
+
+
+
+#### btree_remove：
+
+```
+btree_remove 
+  Ds：（删除b树中的一个key-val项）remove an entry from the btree
+  Para：
+    @head: the btree to update
+    @geo: the btree geometry
+    @key: the key to remove
+ Ret：
+    1、returns the removed entry（val值）,
+    2、or %NULL if the key could not be found.
+```
+
+btree_remove_level：
+
+- 。。。【？？？】
+- 获取（func：返回@key所在的叶子节点）
+- 获取（func：返回@key在节点的区间下标。）
+- 获取（func：返回@节点的实际key-val数量）
+- 如果 @level是1，且叶子节点的区间下标 与 @key不上同一个值：
+  - 返回 NULL（说明key没有找到，不存在）
+- 获取key的val（目的：返回值）
+- （删除并移位） remove and shift：。。。
+- 当前key-val实际个数 = key-val实际个数 -1
+- 如果： （当前key-val实际个数 ） 小于 floor( 节点key-val个数的一半)：
+  - 如果：@level 小于 树的高度
+    - 进行（func： 对B树进行重均衡）
+  - 否则如果：（叶子节点）（当前key-val实际个数 ） 等于 1：
+    - （func：btree_shrink）【？？？： 为啥这种情况下，要将头节点，更换掉？ 为什么能断定头节点只有1个key？】
+
+```
+btree_remove_level：
+  Ds： 【间接-递归函数】
+  Para：
+    【upper】：同上
+    level： 1表示在叶子节点删除，2表示上一层，以此类推。
+```
+
+rebalance：
+
+- 如果 @fill 为 0：
+  - //  （，因为我们不从邻节点 偷取 key-val，这种情况是有可能发生的； ）Because we don't steal entries from a neighbour, this case can happen.  Parent node contains a single child, this node, so merging with a sibling never happens.
+  - （func：btree_remove_level，递归调用，@level + 1）目的：叶子节点的最后一个key已经删除了，则中间节点若是存在这个key，也需要删除掉。
+  - 释放叶子节点内存。
+  - 返回
+- 【🤢🤢🤢】（merge合并左右节点）
+- // （，不做的原因： 属性的改变；以及不变之处。）We could also try to steal one entry from the left or right neighbor.  By not doing so we changed the invariant from "**all nodes are at least half full**" to "**no two neighboring nodes can be merged**".  Which means that the average fill of all nodes is still half or better.
+
+```
+rebalance：
+   Ds： 对B树进行重均衡
+   Para：
+     head：
+     geo：
+     key：
+     level：
+     child：重均衡的节点，站在上一层的角度看，是子节点。
+     fill：@child的key个数
+   Ret：void
+```
+
+merge
+
+- （移动右节点的所有key，到左节点）Move all keys to the left
+- （交换父节点的左右子节点指针（val））Exchange left and right child in parent
+- （在父节点中移除左边的字节的，实际上是右边的）Remove left (formerly right) child from parent
+- 释放右节点的内存
+
+```
+merge：
+  Ds： 合并2个叶子节点
+  Para：
+    head：
+    geo：
+    level：
+    left：
+    lfill：
+    right：
+    rfill：
+    parent：
+    lpos：
+ Ret：void
 ```
 
 
@@ -180,6 +340,28 @@ btree_last：
     Ret：
         1、the last entry in the btree, and sets @key to the key of that entry; 
         2、NULL if the tree is empty, in that case key is not changed.
+```
+
+
+
+
+
+#### btree_get_prev：
+
+- // Usually this function is quite similar to normal lookup.  But the key of a parent node may be smaller than the smallest key of all its siblings. In such a case we cannot just return NULL, as we have only proven that no key smaller than `__key`, but larger than this parent key exists. So we set `__key` to the parent key and retry.  We have to use the smallest such parent key, which is the last parent key we encountered.
+- 【🤢🤢🤢】
+
+```
+btree_get_prev 
+  Ds: （获取最近的后一个key-val项）get previous entry
+  Para:
+      @head: btree head
+      @geo: btree geometry
+      @key: pointer to key
+  Ret: 
+    1、The function returns the next item right before the value pointed to by @key, and updates @key with its key, 
+    2、or returns %NULL when there is no entry with a key smaller than the given key.
+
 ```
 
 
