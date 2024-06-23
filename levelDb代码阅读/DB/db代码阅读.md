@@ -1,5 +1,3 @@
-地址：https://github.com/google/leveldb/
-
 
 
 英语生词：

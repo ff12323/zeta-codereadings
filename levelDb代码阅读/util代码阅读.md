@@ -39,10 +39,8 @@ AllocateAligned：同上，带上对齐。
 
 $$
 x \& (x -1) = 2^{n} , n=0,1,2,..., x \in \Z^{+}  \\
-  y \& (2^n -1) = modval\tag{1.1} 
+  y \& (2^n -1) = modval\tag{1.1}
 $$
-
-
 
 ===private
 
