@@ -6,7 +6,7 @@
 
 
 
-Arena：
+### **Arena**：
 
 - Ds： 内存范围对象，对于小块的内存分配，统一用块大小管理（可以支持对齐/不对齐的地址），可以避免内存碎片化？而大块的内存直接分配。
 - 私有属性：
@@ -62,6 +62,16 @@ AllocateNewBlock：直接分配内存块。
 - new参数指定的内存块，将地址放到 [块列表]中，[内存统计] fetch_add更新。返回分配的地址。
 
 
+
+
+
+### Varint
+
+Endian-neutral encoding:
+
+- （，固定长度的数组被编码为LSB优先）Fixed-length numbers are encoded with least-significant byte first
+- In addition we support variable length "varint" encoding
+- Strings are encoded prefixed by their length in varint format
 
 
 

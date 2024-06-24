@@ -4,6 +4,8 @@
 
 
 
+## ch01 代码阅读的记录
+
 阅读的问题：
 
 - 对于一个不熟悉的领域，不熟悉的代码，应该如何阅读？如何做笔记呢？怎么样才算是高效的，有用的。
@@ -22,12 +24,28 @@
 
 - 1、如果内存的空间无限大，并且带有持久化的特性。运行的软件，数据都在上面，这样key-value的DB，最简单且高性能的办法，只需要一个超大的多线程哈希表。
   - ❌：使用哈希，不是有序的，无法高效迭代DB。
-
-
-
+- 阅读文档与阅读代码之间的差异：
+  - 阅读文档时，没有相关经验。设计的原理、关键概念等讲解很详细，但是具体是如何的无法理解具体实现，感觉朦胧。
+  - 阅读代码时，发现代码仓库很大，种类众多，文件零散，依赖复杂。陷入其中，难分主次轻重，更是迟迟无法发现设计、关键概念等。（细节繁多，原理层层）
+  - 结论：二者之间交互进行，有助于互相促进。
 
 
 阅读的问题记录：
 
 1、阅读速度很慢，效率很低。需要思考下原因，想办法提升效率。
+
+## ch02 levelDB的记录
+
+核心概念：
+
+- table类别：
+  - 1、sstable、block（块）、data block（数据块）、restart point、filter block（过滤器块）、（元数据索引块）meta index block、（数据索引块）index block、footer（文件固定尾部）
+    - compaction（整合）、dump、level 0层（L0）、level i 层（Li）
+  - 2、memtable（内存表）、immutable memtable（不可变内存表）
+  - 3、log(journal)（日志文件）
+  - 4、manifest、current、version
+
+- util类别：
+  - Endian-neutral encoding、"varint" encoding（varint编码）
+
 

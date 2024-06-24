@@ -24,11 +24,11 @@ extent：the area covered by something.（范围）
 
 
 
-**BlockHandle**：块范围
+### **BlockHandle**：块范围
 
 - // （，是一个指针，指向一个文件的存放一个数据块或元数据块的所在范围）BlockHandle is a pointer to the extent of a file that stores a data block or a meta block.
 
-**Footer** ：
+### **Footer** ：尾部
 
 - // （，封装固定的信息，存放在每一个table文件的尾部）Footer encapsulates the fixed information stored at the tail end of every table file.
 - 私有属性：
@@ -37,7 +37,7 @@ extent：the area covered by something.（范围）
 
 
 
-**BlockContents**： slice的封装
+### **BlockContents**： slice的封装
 
 
 
