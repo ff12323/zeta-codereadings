@@ -152,3 +152,56 @@ CompressionType ：枚举
 >
 > 2、Zstandard是由Facebook的Yann Collet开发的一个无损数据压缩算法。
 
+
+
+
+
+### **Table**：
+
+- // （，表是要给从字符串到字符串的一个有序映射；表是不可变的和持久化的；。。。）A Table is a sorted map from strings to strings.  Tables are immutable and persistent.  A Table may be safely accessed from multiple threads without external synchronization.
+- @see 《table xxxx.md》
+
+
+
+### **Env**：
+
+> An Env is an interface used by the leveldb implementation to access operating system functionality like the filesystem etc.  Callers may wish to provide a custom Env object when opening a database to get fine gain control; e.g., to rate limit file system operations. 
+>
+> All Env implementations are safe for concurrent access from multiple threads without any external synchronization.
+
+Default：
+
+- （，返回一个适合当前操作系统的默认环境；。。。）Return a default environment suitable for the current operating system.  **Sophisticated users** may wish to provide their own Env implementation instead of relying on this default environment.
+
+
+
+。。。
+
+---
+
+RandomAccessFile：
+
+- // （，对于随机读取文件内容的抽象表示；）A file abstraction for randomly reading the contents of a file.
+
+Read：
+
+```
+Ds： Read up to "n" bytes from the file starting at "offset". "scratch[0..n-1]" may be written by this routine
+Para：
+  offset：读取文件的起始偏移
+  n：期望的读取长度
+  result：【out】Slice的通用表示，将 @scratch的buffer设置到其中。
+    Request：May set "*result" to point at data in "scratch[0..n-1]", so "scratch[0..n-1]" must be live when "*result" is used.
+    Implementation： （result的结果指针可能是指向其它数据，scratch从其中复制而来。）File implementation gave us pointer to some other data. 
+  scratch：【out】读取的结果存放buffer
+    caller：malloc before call
+Thread： Safe for concurrent use by multiple threads.
+Ret：
+  OK
+  non-OK： has error
+```
+
+
+
+
+

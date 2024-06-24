@@ -40,3 +40,9 @@
 
 
 更多笔记的规范： （@see 《tmpNoteSpecific.md》）
+
+【🤢🤢🤢】
+
+【🤢：exception】
+
+❌
