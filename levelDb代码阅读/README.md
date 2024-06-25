@@ -4,6 +4,12 @@
 
 
 
+```
+neutral： not engaged on either side
+```
+
+
+
 ## ch01 代码阅读的记录
 
 阅读的问题：
@@ -34,18 +40,34 @@
 
 1、阅读速度很慢，效率很低。需要思考下原因，想办法提升效率。
 
+【算法类的代码】
+例子：对于Varint的代码，使用很多的 位运算 + 循环。
+现象： 阅读时，感觉非常艰难。耗时久，却无进展；是一个阻塞点。
+解决：理解已有的文档讲解
+
+【英文资料文档的问题】
+例子：Varint的文档
+现象：自己的英语水平依旧较差，对于稍微复杂的、专业化的英语，理解不到位。导致看这个文档迟迟无法完全理解。
+解决：最后还是依靠中文讲解才能理解。
+
+【经验问题】
+缺乏经验，是效率低的基本原因
+
+
 ## ch02 levelDB的记录
 
 核心概念：
 
 - table类别：
-  - 1、sstable、block（块）、data block（数据块）、restart point、filter block（过滤器块）、（元数据索引块）meta index block、（数据索引块）index block、footer（文件固定尾部）
+  - 1、sstable（sorted table）、block（块）、data block（数据块）、restart point、filter block（过滤器块）、（元数据索引块）meta index block、（数据索引块）index block、footer（文件固定尾部）
     - compaction（整合）、dump、level 0层（L0）、level i 层（Li）
   - 2、memtable（内存表）、immutable memtable（不可变内存表）
   - 3、log(journal)（日志文件）
   - 4、manifest、current、version
-
+  - others：
+    - **delta encoding**（差分编码）
+  
 - util类别：
-  - Endian-neutral encoding、"varint" encoding（varint编码）
-
+  - Endian-neutral encoding：这种编码方式的特点是它不依赖于特定的字节顺序，它可以在大端和小端字节顺序的系统之间进行转换。
+  - "varint" encoding（varint编码）
 

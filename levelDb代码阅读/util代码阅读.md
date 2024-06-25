@@ -75,3 +75,69 @@ Endian-neutral encoding:
 
 
 
+EncodeVarint64：
+
+- 定义一个常量B，其值为128（0b10000000）。这是因为varint编码使用7位来表示数值，最高位用来标识是否还有下一个字节。
+- 将dst指针转换为一个uint8_t类型的指针ptr，这样可以直接操作内存中的字节。
+- while  v 大于等于 B： 说明varint的字节还有后续。
+  - 将v的值与B进行按位或操作（取v的低7位，且MSB置1），然后将结果存储在ptr指向的内存中，并将ptr向后移动一位。
+  - 将v右移7位。去除已编码的内容，继续。
+- 当v小于B时，将v的值转换为一个uint8_t类型，然后存储在ptr指向的内存中，并将ptr向后移动一位。
+
+```
+DS： 对64位整数进行varint64编码
+Para：
+  dst：varint编码的buffer，起始地址（include）
+  v：被编码的，64位无符号整数
+Ret：
+  varint编码的buffer，结束地址（not include）
+```
+
+
+
+
+
+## 附录A
+
+
+
+### 1、《protocol buffers，Base 128 Varints》
+
+（，变长整数。这种编码允许无符号64位整数使用在1字节到10字节之间，小的值使用更少的字节。）Variable-width integers, or *varints*, are at the core of the wire format. <u>They allow encoding unsigned 64-bit integers using anywhere between one and ten bytes, with small values using fewer bytes.</u>
+
+> 使用场景：这种编码方式常用于网络通信和数据存储，特别是在需要高效存储和传输数字数据的场景中。
+
+（，varint的每个字节的MSB是一个**连续标志位**，表示后面一个字节是不是varint的一部分；而低位的7比特是负载；）Each byte in the varint has a *continuation bit* that indicates if the byte that follows it is part of the varint. This is the *most significant bit* (MSB) of the byte (sometimes also called the *sign bit*). The lower 7 bits are a payload; <u>the resulting integer is built by appending together the 7-bit payloads of its constituent bytes.</u>
+
+So, for example, here is the number 1, encoded as ``01`` – it’s a single byte, so the MSB is not set:
+
+```proto
+0000 0001
+^ msb
+```
+
+And here is 150, encoded as ``9601`` – this is a bit more complicated:
+
+```proto
+10010110 00000001
+^ msb    ^ msb
+```
+
+How do you figure out that this is 150? First you drop the MSB from each byte, as this is just there to tell us whether we’ve reached the end of the number (as you can see, it’s set in the first byte as there is more than one byte in the varint). These 7-bit payloads are in little-endian order. Convert to big-endian order, concatenate, and interpret as an unsigned 64-bit integer:
+
+```proto
+10010110 00000001        // Original inputs.
+ 0010110  0000001        // Drop continuation bits.
+ 0000001  0010110        // Convert to big-endian.
+   00000010010110        // Concatenate.
+ 128 + 16 + 4 + 2 = 150  // Interpret as an unsigned 64-bit integer.
+```
+
+Because varints are so crucial to protocol buffers, in protoscope syntax, we refer to them as plain integers. `150` is the same as ``9601``.
+
+
+
+
+
+
+

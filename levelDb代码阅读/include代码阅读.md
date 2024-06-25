@@ -97,7 +97,7 @@ FindShortSuccessor
   - （，每个块里的用户数据近似值； 未压缩的大小；）Approximate size of user data packed per block.  Note that the block size specified here corresponds to uncompressed data.  The actual size of the unit read from disk may be smaller if compression is enabled.  <u>This parameter can be changed dynamically.</u>
 
 - block_restart_interval：
-  - （， 【？？？】 ）Number of keys between restart points for delta encoding of keys. This parameter can be changed dynamically.  Most clients should leave this parameter alone.
+  - （， 在2个重启点之间进行**差分编码**的键数量。）Number of keys between restart points for delta encoding of keys. This parameter can be changed dynamically.  Most clients should leave this parameter alone.
 
 - max_file_size ：
   - Leveldb will write up to this amount of bytes to a file before switching to a new one. 
