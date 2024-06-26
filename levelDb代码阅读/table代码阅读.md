@@ -483,6 +483,14 @@ Para：
 
 
 
+---
+
+私有属性：
+
+- index_iter_：
+- data_iter_ ： ，可能是null
+- data_block_handle_： If `data_iter_` is non-null, then "`data_block_handle_`" holds the "`index_value`" passed to `block_function_` to create the `data_iter_`.
+
 
 
 

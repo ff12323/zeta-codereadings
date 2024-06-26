@@ -23,7 +23,7 @@ ramifications：
 
 
 
-### **Slice**：
+### **Slice**：外部存储数据封装
 
 - // （，是一个简单的结构体包含一个指向外部存储的指针，和其大小；Slice的用户必须确保。。。不再使用。。。在外部存储被释放后；）Slice is a simple structure containing a pointer into some **external storage** and a size.  The user of a Slice must ensure that the slice is not used after the corresponding external storage has been deallocated. 
 - // Multiple threads can invoke const methods on a Slice without external synchronization, <u>but if any of the threads may call a non-const method, all threads accessing the same Slice must use external synchronization.</u>
@@ -32,7 +32,7 @@ ramifications：
 
 
 
-### **Comparator**：
+### **Comparator**：比较器，key排序
 
 -  Ds：比较器 + 字符串顺序的工具。
 -  //A Comparator object provides a total order across slices that are used as keys in an sstable or a database.  A Comparator implementation must be **thread-safe** since leveldb may invoke its methods concurrently from multiple threads.
@@ -52,19 +52,19 @@ FindShortSuccessor
 
 
 
-### **FilterPolicy**：
+### **FilterPolicy**：过滤器
 
 - （，一个数据库可以被配置上一个自定义的**过滤器策略**对象。这个对象负责从一个键的集合而创建一个小的过滤器；这些过滤器存放在leveldb中，并且会被其自动地咨询而决定是否从磁盘中读取一些信息。在很多情况下，一个过滤器可以减少多个的磁盘seek而组成一些到单个的磁盘seek，对于每次的Get调用）A database can be configured with a custom FilterPolicy object. This object is responsible for creating a small filter from a set of keys.  These filters are stored in leveldb and are consulted automatically by leveldb to decide whether or not to read some information from disk. In many cases, a filter can cut down the number of disk seeks form a handful to a single disk seek per `DB::Get()` call.
 
 
 
-### **Iterator**：
-
-- 
+### **Iterator**：迭代器
 
 
 
-### **Options**：
+
+
+### **Options**：可选项
 
 - // （，控制数据库的行为）Options to control the behavior of a database (passed to `DB::Open`)
 - // （以下参数是影响行为的。）Parameters that affect behavior
@@ -156,14 +156,18 @@ CompressionType ：枚举
 
 
 
-### **Table**：
+### **Table**：sstable
 
 - // （，表是要给从字符串到字符串的一个有序映射；表是不可变的和持久化的；。。。）A Table is a sorted map from strings to strings.  Tables are immutable and persistent.  A Table may be safely accessed from multiple threads without external synchronization.
 - @see 《table xxxx.md》
 
 
 
-### **Env**：
+### TableBuilder：sstable构建器
+
+
+
+### **Env**：环境
 
 > An Env is an interface used by the leveldb implementation to access operating system functionality like the filesystem etc.  Callers may wish to provide a custom Env object when opening a database to get fine gain control; e.g., to rate limit file system operations. 
 >
@@ -200,6 +204,38 @@ Ret：
   OK
   non-OK： has error
 ```
+
+
+
+
+
+### Cache： LRU缓存接口
+
+
+
+### **DB**： 数据库接口，用户直接使用
+
+
+
+### DumpFile：接口函数
+
+
+
+
+
+### export：定义接口导出宏
+
+
+
+### Status：状态码封装对象
+
+
+
+
+
+### WriteBatch：批量操作原子更新
+
+
 
 
 

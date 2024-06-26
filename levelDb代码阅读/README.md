@@ -25,6 +25,9 @@ neutral： not engaged on either side
 
 - 对于私有属性，在后缀加 `_`，而不是前缀 `_` 。1、是为了写更方便，避免前缀在输入的时候多输入字符。 2、在类方法中，可以直观地区分私有属性，方便阅读。
 - 对于配置，枚举类型，全局变量等。 使用 格式`kXXX` ，k表示key？
+- 接口类型：
+  - 在公共的接口文件上，对文件设计、类本身、方法等内容有详细注释。而实现的地方，不带上这些注释。
+
 
 想法的记录：
 
@@ -58,6 +61,8 @@ neutral： not engaged on either side
 
 核心概念：
 
+- db类别：
+  - **least-recently-used** eviction policy（LRU 缓存：最近最少使用 去除策略）
 - table类别：
   - 1、sstable（sorted table）、block（块）、data block（数据块）、restart point、filter block（过滤器块）、（元数据索引块）meta index block、（数据索引块）index block、footer（文件固定尾部）
     - compaction（整合）、dump、level 0层（L0）、level i 层（Li）
@@ -66,8 +71,16 @@ neutral： not engaged on either side
   - 4、manifest、current、version
   - others：
     - **delta encoding**（差分编码）
-  
 - util类别：
   - Endian-neutral encoding：这种编码方式的特点是它不依赖于特定的字节顺序，它可以在大端和小端字节顺序的系统之间进行转换。
   - "varint" encoding（varint编码）
+  - Sharded LRU（分片LRU）
+- C++语法：
+  - opaque struct、Helper class（帮助类，如：mutex对象，构造时加锁，析构时解锁）
+- 数据结构：
+  - Dummy head（假头，双向链表的第一个填充头部）、porting hacks（可移植技巧）
+
+
+
+
 

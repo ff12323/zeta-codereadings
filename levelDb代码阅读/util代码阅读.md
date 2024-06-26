@@ -1,8 +1,10 @@
 
 
+英语生词：
 
-
-
+```
+Shard：a piece or fragment of a brittle substance （碎片）
+```
 
 
 
@@ -92,6 +94,165 @@ Para：
 Ret：
   varint编码的buffer，结束地址（not include）
 ```
+
+
+
+### **BloomFilterPolicy**：
+
+
+
+## cache.cc
+
+
+
+---
+
+LRU cache implementation
+
+（，缓存项有着一个"in_cache"标志位而指示缓存是否对这个项有着一个引用。。。）Cache entries have an "in_cache" boolean indicating whether the cache has a reference on the entry.  The only ways that this can become false without the entry being passed to its "deleter" are via Erase(), via Insert() when an element with a duplicate key is inserted, or on destruction of the cache.
+
+（，缓存对其中的项维持在2个链表中。在缓存中的所有项在其中一个链表上，不能同时在2个上面。任然被客户端所引用的项，但从缓存中擦除则不在2个链表上。。）The cache keeps two linked lists of items in the cache.  All items in the cache are in one list or the other, and never both.  Items still referenced by clients but erased from the cache are in neither list.  The lists are：
+
+- in-use：  contains the items currently referenced by clients, in no particular order.  (This list is used for invariant checking.  If we removed the check, elements that would otherwise be on this list could be left as disconnected singleton lists.)
+- LRU:  contains the items not currently referenced by clients, in LRU order Elements are moved between these lists by the Ref() and Unref() methods, when they detect an element in the cache acquiring or losing its only external reference.
+
+An entry is a variable length heap-allocated structure.  Entries are kept in a circular doubly linked list ordered by access time.
+
+### **LRUHandle**：缓存项
+
+- value：值
+- deleter：删除函数指针
+- next_hash：
+  - 目的：构成哈希桶上的链表
+
+- next，prev：双向循环链表
+  - 目的：连接缓存的2个链表。
+
+- charge：耗费计量
+- key_length：key的长度。
+- in_cache：标志位，（该项是否在缓存中）Whether entry is in the cache.
+- refs：（引用，包含缓存引用，如果存在）References, including cache reference, if present.
+- hash：（，对key的哈希值，用于快速分片和比较）Hash of key(); used for fast sharding and comparisons
+- `char key_data[1]`：（柔性数组：存放变成的key）Beginning of key
+
+---
+
+（，缓存是一个接口而映射键到值；。。。；其会自动地去除项而为新的项让出空间。值有着特定的耗费对于缓存容量；例如，一个缓存的值是变长字符串，可能会使用字符串的长度作为字符串的耗费。）A Cache is an interface that maps keys to values.  It has internal synchronization and may be safely accessed concurrently from multiple threads.  It may automatically evict entries to make room for new entries.  Values have a specified charge against the **cache capacity**.  For example, a cache where the values are variable length strings, may use the length of the string as the charge for the string.
+
+A builtin cache implementation with a least-recently-used eviction policy is provided.  Clients may use their own implementations if they want something more sophisticated (like scan-resistance, a custom eviction policy, variable cache sizing, etc.)
+
+### **HandleTable**：Cache自定义哈希表
+
+- // We provide our own simple hash table since it removes a whole bunch of **porting hacks** and is also faster than some of the built-in hash table implementations in some of the compiler/runtime combinations we have tested.  E.g., readrandom speeds up by ~5% over the g++ 4.4.3's builtin hashtable.
+- 
+
+### LRUCache：内部实现
+
+（？？？）A single shard of sharded cache.
+
+【。。。】
+
+（，隐藏结构体：对于缓存中的项的隐藏表示。）Opaque handle to an entry stored in the cache.
+
+- 参考：https://stackoverflow.com/questions/3854113/what-is-an-opaque-value-in-c
+
+```c
+struct Handle {};
+```
+
+Insert：
+
+- 互斥帮助类，构造时，加锁。
+- 分配 缓存项 的内存，总大小 = 结构体大小 - 1 + key大小 
+  - Note：减1，是因为柔性数组分配，但是属性字段里填充的是1，不是0。
+- 初始化项：
+  - 引用计数置 1  // （表示项的引用）for the returned handle.
+
+- 如果（。容量） 大于 0：插入缓存
+  - 项：
+  - 引用计数 ++  // （表示缓存的引用）for the cache's reference.
+  - 缓存标志位 设置为true
+  - 加入到（。使用链）尾部
+
+
+```
+Para：
+  【upper】：同上层传入的4个参数
+  hash：key的哈希值
+```
+
+Lookup：
+
+```
+Ds： 在缓存中查找key
+Para：
+  key：
+Ret：
+  1. If the cache has no mapping for "key", returns nullptr.
+  2. Else return a handle that corresponds to the mapping.
+Caller：
+  The caller must call this->Release(handle) when the returned mapping is no longer needed.
+```
+
+
+
+---
+
+私有属性：
+
+- capacity_：（，容量）Initialized before use.
+- mutex_：（互斥锁，包含如下状态）protects the following state.
+- `GUARDED_BY(mutex_)`
+  - usage_： 使用量，源自耗费。
+  - lru_：（，lru链：）Dummy head of LRU list.
+    - （，新的项插入到链表尾部；旧的项在链表头部）`lru.prev` is newest entry, `lru.next` is oldest entry.
+    - Entries have refs==1 and in_cache==true.
+  - in_use_：（，使用链：）Dummy head of in-use list.
+    - Entries are in use by clients, and have refs >= 2 and in_cache==true.
+  - table_：缓存自定义的哈希表。（用于快速查找）
+
+
+
+【静态常量，kNumShardBits，4， 分片比特数】
+
+【静态常量，kNumShards，16 = 2^（分片比特数）， 分片数】
+
+### **ShardedLRUCache**：【I】分片LRU（封装）
+
+- 父类：Cache
+
+Insert：
+
+- 计算给定值的哈希值
+- 由哈希值，进行比特位偏移，得到分片下标。而得到实际插入的LRU缓存。
+- 返回 （func：LRU缓存。插入）
+
+```
+Ds： Insert a mapping from key->value into the cache and assign it the specified charge against the total cache capacity.
+  1. When the inserted entry is no longer needed, the key and value will be passed to "deleter".
+Para：
+  key：
+  value：
+  charge：
+  deleter：
+Ret：
+  Returns a handle that corresponds to the mapping.  
+Caller：
+  The caller must call this->Release(handle) when the returned mapping is no longer needed.
+```
+
+---
+
+私有属性：
+
+- shard_[16]（常量：分片数）：LRU缓存数组
+- last_id_：
+
+
+
+
+
+## logging.cc
 
 
 
