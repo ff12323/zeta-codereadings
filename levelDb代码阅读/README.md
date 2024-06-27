@@ -63,6 +63,8 @@ neutral： not engaged on either side
 
 - db类别：
   - **least-recently-used** eviction policy（LRU 缓存：最近最少使用 去除策略）
+  - internal keys（内部key）： ？？？
+    - 由  user key + 8bit 组成。
 - table类别：
   - 1、sstable（sorted table）、block（块）、data block（数据块）、restart point、filter block（过滤器块）、（元数据索引块）meta index block、（数据索引块）index block、footer（文件固定尾部）
     - compaction（整合）、dump、level 0层（L0）、level i 层（Li）
@@ -77,6 +79,7 @@ neutral： not engaged on either side
   - Sharded LRU（分片LRU）
 - C++语法：
   - opaque struct、Helper class（帮助类，如：mutex对象，构造时加锁，析构时解锁）
+  - C++的柔性数组
 - 数据结构：
   - Dummy head（假头，双向链表的第一个填充头部）、porting hacks（可移植技巧）
 

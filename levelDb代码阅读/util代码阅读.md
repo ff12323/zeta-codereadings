@@ -8,7 +8,11 @@ Shard：a piece or fragment of a brittle substance （碎片）
 
 
 
-### **Arena**：
+【静态常量，kBlockSize ，4096，块大小】
+
+
+
+### **Arena**：内存范围
 
 - Ds： 内存范围对象，对于小块的内存分配，统一用块大小管理（可以支持对齐/不对齐的地址），可以避免内存碎片化？而大块的内存直接分配。
 - 私有属性：
@@ -49,7 +53,7 @@ $$
 AllocateFallback：
 
 - @bytes：分配字节数
-- 如果 分配字节数 大于 【静态常量，kBlockSize ，4096，块大小】的1/4：
+- 如果 分配字节数 大于 （块大小） 的1/4：
   - // Object is more than a quarter of our block size.  Allocate it separately to avoid wasting too much space in leftover bytes.
   - 返回（func：直接分配内存块）
 - // （当前的块剩余空间可能存在浪费）We waste the remaining space in the current block.
@@ -101,7 +105,7 @@ Ret：
 
 
 
-## cache.cc
+## cache.cc【🤢 。。。】
 
 
 

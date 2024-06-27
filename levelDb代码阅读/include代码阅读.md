@@ -37,6 +37,18 @@ ramifications：
 -  Ds：比较器 + 字符串顺序的工具。
 -  //A Comparator object provides a total order across slices that are used as keys in an sstable or a database.  A Comparator implementation must be **thread-safe** since leveldb may invoke its methods concurrently from multiple threads.
 
+Compare：
+
+```
+Para：
+  a：slice a
+  b：slice b
+Ret：
+  < 0 iff "a" < "b",
+  == 0 iff "a" == "b",
+  > 0 iff "a" > "b"
+```
+
 FindShortestSeparator
 
 - Ds：在2个字符之间，返回它们之间的最小分隔字符串。
@@ -59,6 +71,98 @@ FindShortSuccessor
 
 
 ### **Iterator**：迭代器
+
+析构器：
+
+- 如果头节点有被使用：说明链表有数据
+  - 运行头结点 清理函数
+  - 遍历链表的后面节点：
+    - 运行节点的 清理函数
+    - 获取下一个节点
+    - delete 删除当前节点
+
+Valid：
+
+- Ds：（一个迭代器要么指向一个 键/值 对，或者无效）An iterator is either positioned at a key/value pair, or not valid.
+- Ret：
+  - 1、true iff the iterator is valid.
+  - 2、false，非法。
+
+SeekToFirst：
+
+- Ds：（，指向源的第一个key；如果源不为空，则迭代器在这个调用后将是有效的；）Position at the first key in the source.  The iterator is Valid() after this call iff the source is not empty.
+
+SeekToLast：
+
+- Ds：Position at the last key in the source.  
+  - The iterator is Valid() after this call iff the source is not empty.
+
+Seek：
+
+- Ds：（，指向源中第一个与目标key相同或之后的key；）指向Position at the first key in the source that is at or past target. 
+  - 【？？？】为什么要包含后一个的
+  - The iterator is Valid() after this call iff the source contains an entry that comes at or past target.
+- Para：
+  - target：目标key的slice。
+
+Next：
+
+- Ds：（移动到源中的下一项）Moves to the next entry in the source.  
+  - （，如果迭代器不是在最后一项，则调用后是有效的）After this call, Valid() is true iff the iterator was not positioned at the last entry in the source.
+- REQUIRES: Valid()
+
+Prev：
+
+- Ds：Moves to the previous entry in the source.  
+  - （，如果迭代器不是在第一项，则调用后是有效的）After this call, Valid() is true iff the iterator was not positioned at the first entry in source.
+- REQUIRES: Valid()
+
+key：
+
+- Ds：Return the key for the current entry. 
+  - limit： The underlying storage for the returned slice is valid only until the next modification of the iterator.
+- REQUIRES: Valid()
+
+value：
+
+- Ds：Return the value for the current entry.  
+  - limit：The underlying storage for the returned slice is valid only until the next modification of the iterator.
+- REQUIRES: Valid()
+
+RegisterCleanup：
+
+- Ds：注册销毁清理函数
+- Para：
+  - function：Clients are allowed to register function/arg1/arg2 triples that will be invoked when this iterator is destroyed.
+    - Note： that unlike all of the preceding methods, this method is not abstract and therefore clients should not override it.
+  - arg1、arg2：传给清理函数
+- Impl：
+  - 如果 清理链表头_ 是未使用的：
+    - 更新节点  设置 为 清理链表头_
+  - 否则：
+    - new 分配新节点，并插入链表头部
+  - 更新节点的属性（从参数传入）
+
+---
+
+私有属性：
+
+- cleanup_head_：清理链表头。
+
+**CleanupNode**：
+
+- 【类型】私有结构体
+- next：下一个节点
+- function：清理函数
+- arg1、arg2：
+
+IsEmpty：
+
+- Ret：清理函数_ 为空；True if the node is not used. Only head nodes might be unused.
+
+Run：调用清理函数。
+
+---
 
 
 
