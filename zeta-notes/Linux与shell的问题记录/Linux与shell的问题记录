@@ -1,0 +1,38 @@
+
+
+
+
+1、如何查找是否存在某个用户？lslogins没有找到。
+
+> 问题：shell知识不熟悉，学过却不记得，用的少而有需要时无法使用。
+
+The `lslogins` command is used to display a list of users currently logged into the system. However, it may not show all users, especially system users or users that are not currently logged in.
+
+To find a specific user, you can use the `grep` command with the `/etc/passwd` file, which contains a list of all users on the system. For example, to find a user called "script", you can use the following command:
+
+```bash
+grep script /etc/passwd
+```
+
+2、scp在ipv6环境下、在堡垒机环境下使用
+
+参考文章：https://linuxblog.io/linux-securely-copy-files-using-scp/
+
+场景：由于不知道密码，在一个节点上创建一个用户，然后通过 远程复制到本地 的方式运行（目的节点需要执行scp命令），而不是源节点执行所有的scp命令。
+
+- **Disable strict host key checking.** This is less secure, as it allows connections to servers without their host key being registered in the `known_hosts` file.
+
+```shell
+scp -o StrictHostKeyChecking=no test@[2600:2100:3:100:100::11]:/root/test.zip /root
+```
+
+3、mingw链接失败
+
+现象：windows环境下，链接一个64位的window的静态库文件。报错
+
+C:\MinGW\bin\nm.exe: rbtree.c.obj: File format not recognized
+
+根本原因：Windows本地安装的是32位mingw，导致出现问题。
+
+- One possible reason for this error is that you are trying to link a 32-bit object file with a 64-bit toolchain or vice versa. Ensure that you are using a compatible toolchain that matches the architecture of your object file and system.
+
