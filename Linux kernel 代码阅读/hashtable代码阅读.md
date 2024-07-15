@@ -82,7 +82,7 @@ struct hlist_node {
 
 
 
-![img](.\.img\hashtable_hlist.drawio.svg)
+![img](.img/hashtable_hlist.drawio.svg)
 
 
 
