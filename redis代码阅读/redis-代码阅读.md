@@ -784,7 +784,7 @@ zskiplist：
 
 
 
-![img](.img\skip_list.drawio.svg)
+![img](.img/skip_list.drawio.svg)
 
 ### 4.1 宏与工具
 
@@ -822,7 +822,7 @@ zslCreate
 
 ### 4.3 插入
 
-![img](.img\skip_list_insert.drawio.svg)
+![img](.img/skip_list_insert.drawio.svg)
 
 zslInsert：
 
