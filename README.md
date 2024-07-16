@@ -2,6 +2,20 @@
 
 
 
+AutoHotKey util： convert repo code comment  to  markdown oneline txt
+
+```
+^!m::  ; Ctrl+Alt+M  
+clipboard := RegExReplace(clipboard,"m)^[\s\*/]+","")
+clipboard := RegExReplace(clipboard,"`r`n"," ")
+clipboard := RegExReplace(clipboard,"`r"," ")
+clipboard := RegExReplace(clipboard,"`n"," ")
+SendInput ^v
+return
+```
+
+
+
 
 代码阅读的目的：
 
