@@ -109,3 +109,19 @@
 
 
 
+1、动态数组里的字符串，无法被borrow，缺少 "Copy" 特征
+
+```rust
+let args: Vec<String> = env::args().collect();
+
+error[E0507]: cannot move out of index of `Vec<String>`
+ --> src\main.rs:8:14
+  |
+8 |     let a2 = args[2]
+  |              ^^^^^^^ move occurs because value has type `String`, which does not implement the `Copy` trait
+```
+
+
+
+
+
