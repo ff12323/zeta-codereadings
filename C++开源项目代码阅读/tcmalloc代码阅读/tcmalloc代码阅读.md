@@ -28,6 +28,8 @@ doc && 第一次：
 
 
 
+
+
 翻译记录：
 
 - size class：尺寸类别
@@ -39,12 +41,25 @@ doc && 第一次：
 Configuration：宏配置
 
 - There are four different models for tcmalloc which are created by defining a // set of constant variables differently:
-  - DEFAULT:  The default configuration strives for good performance while trying to  minimize fragmentation.  It uses a smaller page size to reduce  fragmentation, but allocates per-thread and per-cpu capacities similar to  `TCMALLOC_INTERNAL_32K_PAGES` / `TCMALLOC_INTERNAL_256K_PAGES`.
+  - DEFAULT:  （，默认配置在追求好的性能同时尝试将碎片化最小化；）The default configuration <u>strives for good performance while trying to  minimize fragmentatio</u>n.  It uses a smaller page size to reduce  fragmentation, but allocates per-thread and per-cpu capacities similar to  `TCMALLOC_INTERNAL_32K_PAGES` / `TCMALLOC_INTERNAL_256K_PAGES`.
   - TCMALLOC_INTERNAL_32K_PAGES：
     -  Larger page sizes (32KB) increase the bookkeeping granularity used by  TCMalloc for its allocations.  This can reduce PageMap size and traffic to  the innermost cache (the page heap), but can increase memory footprints. As  TCMalloc will not reuse a page for a different allocation size until the  entire page is deallocated, this can be a source of increased memory  fragmentation.
     -  Historically, larger page sizes improved lookup performance for the  pointer-to-size lookup in the PageMap that was part of the critical path.  With most deallocations leveraging C++14's sized delete feature  (https://isocpp.org/files/papers/n3778.html), this optimization is less  significant.
   - TCMALLOC_INTERNAL_256K_PAGES：This configuration uses an even larger page size (256KB) as the unit of  accounting granularity.
   - TCMALLOC_INTERNAL_SMALL_BUT_SLOW： Used for situations where minimizing the memory footprint is the most  desirable attribute, even at the cost of performance.
+
+The constants that vary between models are:
+
+- kPageShift - Shift amount used to compute the page size.
+- kNumBaseClasses - Number of size classes serviced by bucket allocators
+- kMaxSize - Maximum size serviced by bucket allocators (thread/cpu/central)
+- kMinThreadCacheSize - The minimum size in bytes of each ThreadCache.
+- kMaxThreadCacheSize - The maximum size in bytes of each ThreadCache.
+- kDefaultOverallThreadCacheSize - The maximum combined size in bytes of allThreadCaches for an executable.
+- kStealAmount - The number of bytes one ThreadCache will steal from another when the first ThreadCache is forced to Scavenge(), delaying the next call to Scavenge for this thread.
+- kDefaultProfileSamplingInterval - Bytes between sampled allocations.
+
+
 
 
 
@@ -59,6 +74,8 @@ Configuration：宏配置
 - pages：Number of pages to allocate at a time
 - num_to_move： Number of objects to move between a per-thread list and a central list in  one shot.  We want this to be not too small so we can amortize the lock  overhead for accessing the central list.  Making it too big may temporarily  cause unnecessary memory wastage in the per-thread free list until the  scavenger cleans up the list.
 - max_capacity： Max per-CPU slab capacity for the default 256KB slab size.  Scaled up/down for larger/smaller slab sizes.
+
+Older configurations had their own customized macros.  Convert them into // a page-shift parameter that is checked below.
 
 
 
