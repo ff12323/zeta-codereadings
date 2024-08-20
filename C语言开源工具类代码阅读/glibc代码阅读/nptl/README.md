@@ -14,7 +14,7 @@
 
 ### 问题记录
 
-####  1、pthread_create 返回EPERM
+####  1、【OK】pthread_create 返回EPERM
 
 - https://stackoverflow.com/questions/9313428/getting-eperm-when-calling-pthread-create-for-sched-fifo-thread-as-root-on-lin
 
@@ -50,4 +50,31 @@ pthread_attr_getinheritsched
 > - `echo $$ > /sys/fs/cgroup/cpu/tasks`
 > - `cat /proc/$$/cgroup`
 >
-> 
+
+失败节点：
+
+```
+[user@user]# cat /proc/$$/cgroup
+12:memory:/system.slice/sshd.service
+11:devices:/system.slice/sshd.service
+10:rdma:/
+9:freezer:/system.slice/sshd.service
+8:perf_event:/
+7:pids:/system.slice/sshd.service
+6:cpu,cpuacct:/system.slice/sshd.service
+5:blkio:/system.slice/sshd.service
+4:cpuset:/
+3:hugetlb:/
+2:net_cls,net_prio:/
+1:name=systemd:/system.slice/sshd.service
+```
+
+解决：发现仅仅设置cpu的cgroups不够，依然存在cgroup的问题。运行如下命令才最终解决。
+
+```
+echo $$ > /sys/fs/cgroup/cpu/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/tasks
+echo $$ > /sys/fs/cgroup/cpu,cpuacct/tasks
+echo $$ > /sys/fs/cgroup/cpuset/tasks
+```
+
