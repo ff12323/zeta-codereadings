@@ -59,7 +59,12 @@ rte_memzone： A structure describing a memzone, which is a contiguous portion o
 
 rte_ring：An RTE ring structure. 
 
-- // （，生产者与消费者有着一个头部索引 与 尾部索引；）The producer and the consumer have a head and a tail index. The particularity of these index is that they are not between 0 and `size(ring)-1`. These indexes are between 0 and 2^32 -1, and **we mask their value** when we access the `ring[]` field. Thanks to this assumption, <u>we can do subtractions between 2 index values in a modulo-32bit base: that's why the overflow of the indexes is not a problem</u>.
-  - 【？？？】 什么是对value进行掩码？
-  - 【？？？】为什么索引的溢出不是一个问题？
+（，生产者与消费者有着一个头部索引 与 尾部索引；）The producer and the consumer have a head and a tail index. The particularity of these index is that they are not between 0 and `size(ring)-1`. These indexes are between 0 and 2^32 -1, and **we mask their value** when we access the `ring[]` field. Thanks to this assumption, <u>we can do subtractions between 2 index values in a modulo-32bit base: that's why the overflow of the indexes is not a problem</u>.
+> 【？？？】 
+>
+> 1、什么是对value进行掩码？
+>
+> 2、为什么索引的溢出不是一个问题？
+
 - 
+

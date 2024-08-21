@@ -28,3 +28,15 @@
 
 
 
+ch13：
+
+- 第一次：
+  - The default mempool handler is ring based.
+  - X86 architecture, performance can be greatly improved by adding a specific padding between objects. The objective is to ensure that the beginning of each object starts on a different channel and rank in memory so that all channels are **equally loaded**.
+- 不懂的概念：
+  - DRAM or DDR3 channels、DIMM
+  - **ranks** on any DIMM：the number of independent sets of DRAMs that can be accessed for the full data bit-width of the DIMM.
+  - Arm systems、Modern Arm Interconnects、SN-F (memory channel) 
+  - compare-and-set (CAS)、per-**lcore** local cache
+  - data plane
+
