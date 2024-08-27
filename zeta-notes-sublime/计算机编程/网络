@@ -1,0 +1,28 @@
+网络
+
+shell脚本学习：
+
+tools：
+  ndisc6 、 seq 、 arping
+
+
+ ip -6 neigh show dev <ethx> | grep -v "^fe80::" | awk -F ' lladdr ' '{print $2}'
+  - IPv6链接本地地址（link-local address），这些地址不是真正的MAC地址。
+
+
+${1%/*}和${1#*/}是Shell中的参数扩展，用于从命令行参数中提取特定的部分。
+${1%/*}的含义是去掉参数$1中最后一个/及其后面的部分，即提取网络地址。
+${1#*/}的含义是去掉参数$1中第一个/及其前面的部分，即提取子网掩码的长度。
+   例如，如果命令行参数是192.168.1.0/24，那么${1%/*}的值将是192.168.1.0，${1#*/}的值将是24。
+
+arp -n -i <intf>
+
+echo "obase=16;${i}" | bc | tr A-Z a-z
+ echo打印的内容，传入bc进行进制转换。
+
+
+交换机策略路由有问题，是什么意思？
+  策略路由典型配置： https://support.huawei.com/enterprise/zh/doc/EDOC1000069491/df424d7a
+
+
+lspci -vnn
