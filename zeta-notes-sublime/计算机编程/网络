@@ -26,3 +26,20 @@ echo "obase=16;${i}" | bc | tr A-Z a-z
 
 
 lspci -vnn
+
+
+
+perftest:
+  ib_write_bw 
+
+
+
+gdb僵尸进程：
+2697262       1 42  80   0 -     0 -      17:18 ?        00:26:07 [fio_test] <defunct>
+
+```
+Attaching to process 2697262
+warning: process 2697262 is already traced by process 2756840process 2697262 is a zombie - the process has already terminated
+ptrace: Operation not permitted.
+(gdb) 
+```
