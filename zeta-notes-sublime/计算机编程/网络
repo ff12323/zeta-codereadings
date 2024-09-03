@@ -46,3 +46,13 @@ ptrace: Operation not permitted.
 
 
 Google： 《端到端RoCE概念原理与部署调优》
+
+
+socket编程：
+
+epoll_create
+eventfd
+epoll_wait
+/proc/sys/net/ipv4/ip_local_reserved_ports
+FIONREAD
+/proc/sys/net/ipv4/tcp_congestion_control: cubic
