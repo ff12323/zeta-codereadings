@@ -23,7 +23,7 @@ echo "obase=16;${i}" | bc | tr A-Z a-z
 
 交换机策略路由有问题，是什么意思？
   策略路由典型配置： https://support.huawei.com/enterprise/zh/doc/EDOC1000069491/df424d7a
-
+交换机： HUAWEI CE8850E
 
 lspci -vnn
 
@@ -56,3 +56,5 @@ epoll_wait
 /proc/sys/net/ipv4/ip_local_reserved_ports
 FIONREAD
 /proc/sys/net/ipv4/tcp_congestion_control: cubic
+
+
