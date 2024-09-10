@@ -34,23 +34,6 @@ perftest:
 
 
 
-gdb僵尸进程：
-2697262       1 42  80   0 -     0 -      17:18 ?        00:26:07 [fio_test] <defunct>
-
-```
-Attaching to process 2697262
-warning: process 2697262 is already traced by process 2756840process 2697262 is a zombie - the process has already terminated
-ptrace: Operation not permitted.
-(gdb) 
-```
-
-如何对ping进行代理：
-  https://superuser.com/questions/175428/how-to-ping-when-behind-a-proxy
-
-
-Google： 《端到端RoCE概念原理与部署调优》
-
-
 socket编程：
 
 epoll_create
@@ -60,38 +43,3 @@ epoll_wait
 FIONREAD
 /proc/sys/net/ipv4/tcp_congestion_control: cubic
 
-1、场景1，在下IO过程中，出现故障
-我们使用一个io tester工具下IO时，如果云块设备发生故障时，会导致IO任务无法完成。卡在内核态。 导致 <defunct>，进程僵尸。
-> 系统一直认为这个bio未完成，所以这个__lock_page()就一直不被唤醒了
- - https://groups.google.com/g/cn.bbs.comp.unix.development.kernel/c/p5nsKhQU46g
-```
-[user@ ~]# cat /proc/2316545/task/2316564/stack 
-[<0>] __lock_page+0x138/0x230
-[<0>] truncate_inode_pages_range+0x780/0x8b0
-[<0>] __blkdev_put+0x87/0x1f0
-[<0>] blkdev_close+0x21/0x30
-[<0>] __fput+0xb7/0x230
-[<0>] task_work_run+0x8a/0xb0
-[<0>] do_exit+0x3a9/0xba0
-[<0>] do_group_exit+0x33/0xb0
-[<0>] get_signal+0x15e/0x850
-[<0>] do_signal+0x36/0x610
-[<0>] exit_to_usermode_loop+0x71/0xe0
-[<0>] do_syscall_64+0x181/0x1b0
-[<0>] entry_SYSCALL_64_after_hwframe+0x65/0xca
-[<0>] 0xffffffffffffffff
-```
-
-2、场景2： 已经存在故障，fio对块设备下IO。卡在内核态，打开设备失败
-```
-[user@ ~]# cat /proc/1650821/task/*/stack
-[<0>] __blkdev_get+0x81/0x590
-[<0>] blkdev_get+0x149/0x3a0
-[<0>] do_dentry_open+0x1d5/0x370
-[<0>] path_openat+0x557/0x1730
-[<0>] do_filp_open+0x9b/0x110
-[<0>] do_sys_open+0x1bd/0x250
-[<0>] do_syscall_64+0x5b/0x1b0
-[<0>] entry_SYSCALL_64_after_hwframe+0x65/0xca
-[<0>] 0xffffffffffffffff
-```
