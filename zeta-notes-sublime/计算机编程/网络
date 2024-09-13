@@ -43,3 +43,8 @@ epoll_wait
 FIONREAD
 /proc/sys/net/ipv4/tcp_congestion_control: cubic
 
+mount: /mnt/iso: WARNING: source write-protected, mounted read-only
+
+
+/boot/grub2/grub.cfg 
+/boot/efi/EFI

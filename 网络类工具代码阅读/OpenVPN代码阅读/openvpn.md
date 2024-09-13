@@ -41,11 +41,35 @@ Doxgen格式注释：
 
 
 
+## comp
+
+### 1、接口
+
+> 》：
+>
+> compress_options：记录压缩算法类型与压缩标记。
+>
+> 支持的压缩算法：lzo，lz4（通过编译宏，进行选择性支持）
+>
+> 压缩回话上下文
+
+
+
 ## options
 
 ### 1、接口
 
 
+
+
+
+## crypto_backend
+
+1、接口
+
+> 》：
+>
+> cipher、message digest
 
 
 
