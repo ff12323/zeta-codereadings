@@ -73,6 +73,116 @@ Doxgen格式注释：
 
 
 
+## crypto_openssl
+
+
+
+## crypto
+
+### @file 
+
+（数据通道密码学模块）Data Channel Cryptography Module
+
+@addtogroup data_crypto Data Channel Crypto module
+
+Crypto packet formats
+The Data Channel Crypto module supports a number of crypto modes and configurable options. The actual packet format depends on these options. A Data Channel packet can consist of:
+
+- \b Opcode, one byte specifying the packet type (see @ref network_protocol
+"Network protocol").
+- \b Peer-id, if using the v2 data channel packet format (see @ref network_protocol "Network protocol").
+- \b HMAC, covering the ciphertext IV + ciphertext. The HMAC size depends on the \c \-\-auth option. If \c \-\-auth \c none is specified, there is no HMAC at all.
+- \b Ciphertext \b IV. The IV size depends on the \c \-\-cipher option.
+- \b Packet \b ID, a 32-bit incrementing packet counter that provides replay protection.
+- \b Timestamp, a 32-bit timestamp of the current time.
+- \b Payload, the plain text network packet to be encrypted (unless
+encryption is disabled by using \c \-\-cipher \c none). The payload might
+already be compressed (see @ref compression "Compression module").
+
+This section does not discuss the opcode and peer-id, since those do not depend on the data channel crypto. See @ref network_protocol "Network protocol" for more information on those.
+
+\e Legenda 
+<tt>[ xxx ]</tt> = unprotected 
+<tt>[ - xxx - ]</tt> = authenticated 
+<tt>[ * xxx * ]</tt> = encrypted and authenticated
+
+<b>CBC data channel cypto format</b> 
+
+In CBC mode, both TLS-mode and static key mode are supported. The IV consists of random bits to provide unpredictable IVs. 
+
+<i>CBC IV format:</i> 
+
+<tt> [ - random - ] </tt> 
+
+<i>CBC data channel crypto format in TLS-mode:</i> 
+
+<tt> [ HMAC ] [ - IV - ] [ * packet ID * ] [ * packet payload * ] </tt> 
+
+<i>CBC data channel crypto format in static key mode:</i> 
+
+<tt> [ HMAC ] [ - IV - ] [ * packet ID * ] [ * timestamp * ]
+[ * packet payload * ] </tt>
+
+<b>CFB/OFB data channel crypto format</b> 
+
+CFB and OFB modes are only supported in TLS mode. In these modes, the IV consists of the packet counter and a timestamp. If the IV is more than 8 bytes long, the remaining space is filled with zeroes. The packet counter may not roll over within a single TLS sessions. This results in a unique IV for each packet, as required by the CFB and OFB cipher modes.
+
+<i>CFB/OFB IV format:</i> 
+
+<tt>   [ - packet ID - ] [ - timestamp - ] [ - opt: zero-padding - ] </tt>
+
+<i>CFB/OFB data channel crypto format:</i> 
+
+<tt>   [ HMAC ] [ - IV - ] [ * packet payload * ] </tt>
+
+<b>GCM data channel crypto format</b> 
+
+GCM modes are only supported in TLS mode.  In these modes, the IV consists of the 32-bit packet counter followed by data from the HMAC key.  The HMAC key can be used as IV, since in GCM and CCM modes the HMAC key is not used for the HMAC.  The packet counter may not roll over within a single TLS sessions. This results in a unique IV for each packet, as required by GCM.
+
+
+The HMAC key data is pre-shared during the connection setup, and thus can be omitted in on-the-wire packets, saving 8 bytes per packet (for GCM and CCM).
+
+
+In GCM mode, P_DATA_V2 headers (the opcode and peer-id) are also authenticated as Additional Data.
+
+<i>GCM IV format:</i> 
+
+<tt>   [ - packet ID - ] [ - HMAC key data - ] </tt>
+
+<i>P_DATA_V1 GCM data channel crypto format:</i> 
+
+<tt>   [ opcode ] [ - packet ID - ] [ TAG ] [ * packet payload * ] </tt>
+
+<i>P_DATA_V2 GCM data channel crypto format:</i> 
+
+<tt>   [ - opcode/peer-id - ] [ - packet ID - ] [ TAG ] [ * packet payload * ] </tt>
+
+<b>No-crypto data channel format</b> 
+
+In no-crypto mode (\c \-\-cipher \c none is specified), both TLS-mode and
+static key mode are supported. No encryption will be performed on the packet,
+but packets can still be authenticated. This mode does not require an IV.
+
+<i>No-crypto data channel crypto format in TLS-mode:</i> 
+
+<tt> [ HMAC ] [ - packet ID - ] [ - packet payload - ] </tt> 
+
+<i>No-crypto data channel crypto format in static key mode:</i> 
+
+<tt> [ HMAC ] [ - packet ID - ] [ - timestamp - ] [ - packet payload - ] </tt>
+
+### 1、接口
+
+> 》：
+>
+> SHA256 digests
+>
+> HMAC：哈希运算消息认证码（Hash-based Message Authentication Code）
+>
+> 
+
+
+
 ## openvpn
 
 ### 1、接口
