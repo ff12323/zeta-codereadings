@@ -48,3 +48,6 @@ mount: /mnt/iso: WARNING: source write-protected, mounted read-only
 
 /boot/grub2/grub.cfg 
 /boot/efi/EFI
+
+案例库： 《linux系统重启网卡后网络不通》
+ https://support.huawei.com/enterprise/zh/knowledge/EKB1100073351

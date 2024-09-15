@@ -61,6 +61,14 @@ Doxgen格式注释：
 
 
 
+## env_set
+
+### 1、接口
+
+> 》：
+>
+> env_set：gc内存块链 + 环境遍历列表
+
 
 
 ## crypto_backend
