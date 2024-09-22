@@ -10,6 +10,14 @@ Doxgen格式注释：
 
 
 
+## ch0 记录
+
+概念：
+
+- schedule：（一个随机化的二叉搜索树）random **treap** binary tree
+
+
+
 ## platform
 
 ### 1、接口
@@ -188,6 +196,147 @@ but packets can still be authenticated. This mode does not require an IV.
 > HMAC：哈希运算消息认证码（Hash-based Message Authentication Code）
 >
 > 
+
+
+
+
+
+## proto
+
+### 1、接口
+
+> TUN：TUN, namely network TUNnel, simulates a network layer device and operates in layer 3 carrying IP packets.
+>
+> TAP：TAP, namely network TAP, simulates a link layer device and operates in layer 2 carrying Ethernet frames.
+
+openvpn_ethhdr：
+
+> a regular Ethernet II header：
+>
+> （，IP和以太网协议结构体。为了兼容性，OpenVPN需要其自己定义这些结构体，并且名字已经被调整避免与原生结构体冲突；）IP and Ethernet protocol structs.  For portability, OpenVPN needs its own definitions of these structs, and names have been adjusted to avoid collisions with native structs.
+
+- dest：6字节大小；（目的以太网地址）destination ethernet addr
+- source：6字节大小；（源以太网地址）source ethernet addr
+- proto：（包类型ID字段）packet type ID field
+  - IPv4 protocol
+  - IPv6 protocol
+  - ARP protocol
+  - 802.1Q protocol
+
+openvpn_8021qhdr：
+
+> an Ethernet II  header with additional IEEE 802.1Q tagging.
+
+- dest：
+- source：
+- tpid：802.1Q Tag Protocol Identifier
+- pcp_cfi_vid：
+  - PCP
+  - CFI
+  - VID
+- proto
+
+
+
+openvpn_arp：
+
+- mac_addr_type：
+- proto_addr_type：
+- mac_addr_size：
+- proto_addr_size：
+- arp_command：0x0001 for ARP request, 0x0002 for ARP reply
+- mac_src：6字节的（源IP对应的）MAC源地址
+- ip_src：源IP地址
+- mac_dest：6字节的（目的IP对应的）MAC目的地址
+- ip_dest：目的IP地址
+
+
+
+openvpn_iphdr：IPv4头部
+
+- version_len：
+- tos：
+- tot_len：
+- id：
+- frag_off：
+- ttl：
+- protocol：
+  - IGMP协议
+  - TCP协议
+  - UDP协议
+  - ICMPv6协议
+- check：
+- saddr：IPv4源地址
+- daddr：IPv6源地址
+- // （可选项起始地址）The options start here.
+  - 注：应该是变长内存申请
+
+openvpn_ipv6hdr：IPv6 header
+
+- version_prio：
+- flow_lbl：
+- payload_len：
+- nexthdr：
+- hop_limit：
+- saddr：IPv6源地址
+- daddr：IPv6目的地址
+
+
+
+openvpn_icmp6hdr：ICMPv6 header
+
+- icmp6_type：
+- icmp6_code：
+- icmp6_cksum：
+- icmp6_dataun[4]：
+
+
+
+openvpn_udphdr：UDP header
+
+- source：源端口号
+- dest：目的端口号
+- len：消息长度
+- check：
+
+
+
+openvpn_tcphdr：TCP header, per RFC 793.
+
+- source：source port
+- dest：destination port
+- seq：sequence number
+- ack_seq：acknowledgement number
+- doff_res：
+- flags：1个字节的标志位，共8种标志：FIN、SYN、RST、PSH、ACK、URG、ECE、CWR
+- window：
+- check：
+- urg_ptr：
+
+
+
+ip_tcp_udp_hdr：
+
+- ip：ipv4
+- u：联合体
+  - tcp：
+  - udp
+
+
+
+
+
+
+
+
+
+## dco
+
+ Data Channel Offload (DCO)
+
+
+
+
 
 
 
