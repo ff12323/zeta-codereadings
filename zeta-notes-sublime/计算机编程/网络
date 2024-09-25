@@ -51,3 +51,28 @@ mount: /mnt/iso: WARNING: source write-protected, mounted read-only
 
 案例库： 《linux系统重启网卡后网络不通》
  https://support.huawei.com/enterprise/zh/knowledge/EKB1100073351
+
+
+ arm堆栈展开失败：
+  https://libunwind-devel.nongnu.narkive.com/nRZ7xotM/backtrace-from-signal-handler-on-arm-from-threads
+
+  gdb堆栈展开失败：
+使用bt查看，再第3个stack展开的时候卡在，
+失败未知：__kernel_rt_sigreturn，linux-vdso.so.1
+```
+(gdb) disassemble 0xffff7ff428dc
+Dump of assembler code for function __kernel_rt_sigreturn:
+   0x0000ffff7ff428dc <+0>: mov x8, #0x8b                   // #139
+   0x0000ffff7ff428e0 <+4>: svc #0x0
+End of assembler dump.
+```
+卡死-死循环： 
+1、CPU为Kunpeng 920B,支持SVE特性
+2、core文件中 NOTE中没有 NT_ARM_SVE 信息，初始化加载core时标记了arch不支持SVE。
+原因：
+gdb解析[stack]中的信号信息时，死循环。 因为遇到SVE的魔术字，但是又判定arch不支持SVE, 没有调整section的位置
+解决办法：
+ 1、修复gdb的死循环bug。不依赖bbox生成的sve信息了
+ 2、修复bbox生成core流程，到内核获取SVE寄存器信息
+
+
