@@ -20,8 +20,6 @@ ibv_get_device_list
     - nl_send_simple：`libnl` 库中存在一个特殊的接口用来发送简单的消息。这个函数接收 `netlink` 消息类 型、可选的 `netlink` 消息标志以及可选的数据缓冲区和数据长度。
       - `RDMA_NLDEV_CMD_SYS_GET`：`linux/include/uapi/rdma /rdma_netlink.h`
 
-
-
 ### 【问题】接口宏定义的原因？
 
 1. **`LATEST_SYMVER_FUNC`**：
